@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Central Network — สรุปการอัปโหลดจอ</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📊%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2f5f9; --surface:#ffffff; --ink:#1b2331; --muted:#647084; --line:#e1e6ee;
+  --head:#3c85d8; --head-ink:#ffffff; --band:#d9eafa; --divider:#d9d9d9; --divider-ink:#212121;
+  --early:#3c85d8; --mid:#1f9a8a;
+  --bad:#c62828; --bad-bg:#fdebea; --ok:#1b7f4b; --ok-bg:#e4f4ec; --focus:#1d5fb8;
+  --font:"Noto Sans Thai","Leelawadee UI","Tahoma","Segoe UI",system-ui,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11161e; --surface:#19202b; --ink:#e7ebf2; --muted:#98a3b5; --line:#2a3342;
+    --head:#2c5f9e; --band:#1f2c3f; --divider:#3a414d; --divider-ink:#e7ebf2;
+    --early:#5b9de6; --mid:#3cbfae;
+    --bad:#ff8f86; --bad-bg:#3a2223; --ok:#62d29f; --ok-bg:#183428; --focus:#8bb8f2;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11161e; --surface:#19202b; --ink:#e7ebf2; --muted:#98a3b5; --line:#2a3342;
+  --head:#2c5f9e; --band:#1f2c3f; --divider:#3a414d; --divider-ink:#e7ebf2;
+  --early:#5b9de6; --mid:#3cbfae;
+  --bad:#ff8f86; --bad-bg:#3a2223; --ok:#62d29f; --ok-bg:#183428; --focus:#8bb8f2;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--font);-webkit-text-size-adjust:100%}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+.top{max-width:1280px;margin:0 auto;padding:20px 20px 0}
+.top h1{margin:0;font-size:22px;font-weight:700;letter-spacing:0}
+.top p{margin:2px 0 0;color:var(--muted);font-size:13.5px}
+.sample{margin:12px 0 0;padding:8px 12px;border-radius:8px;background:var(--bad-bg);color:var(--bad);font-size:13.5px}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);margin-top:14px;border-bottom:1px solid var(--line)}
+.tabs-in{max-width:1280px;margin:0 auto;padding:0 20px;display:flex;gap:4px;overflow-x:auto}
+.tab{appearance:none;background:none;border:0;border-bottom:3px solid transparent;padding:11px 16px 9px;cursor:pointer;
+  color:var(--muted);font-weight:500;white-space:nowrap}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--head);font-weight:700}
+
+main{max-width:1280px;margin:0 auto;padding:18px 20px 40px}
+
+.filters{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:end;margin-bottom:16px}
+.f{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--muted)}
+.f select,.f input[type=search]{min-width:170px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.f .wide-in{min-width:240px}
+.f.chk{flex-direction:row;align-items:center;gap:7px;padding-bottom:8px;color:var(--ink);cursor:pointer}
+.f.chk input{width:17px;height:17px;accent-color:var(--head)}
+
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:18px}
+.strip>div{padding:14px 18px;border-left:1px solid var(--line)}
+.strip>div:first-child{border-left:0}
+.strip .k{font-size:13px;color:var(--muted)}
+.strip .v{font-size:26px;font-weight:700;line-height:1.25;font-variant-numeric:tabular-nums}
+.strip .s{font-size:12.5px;color:var(--muted)}
+@media (max-width:640px){.strip>div{border-left:0;border-top:1px solid var(--line)}.strip>div:first-child{border-top:0}}
+
+.sec{margin:26px 0 8px;font-size:17px;font-weight:700}
+.note{margin:8px 0 0;font-size:12.5px;color:var(--muted)}
+
+.wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-variant-numeric:tabular-nums}
+th{background:var(--head);color:var(--head-ink);font-weight:600;padding:10px 12px;text-align:center;font-size:14px}
+td{padding:8px 12px;text-align:center;vertical-align:middle;border-bottom:1px solid var(--line)}
+td.l,th.l{text-align:left}
+td:not(.lst){white-space:nowrap}
+table.wide{min-width:1040px}
+td.lst{text-align:left;white-space:pre-line;min-width:230px;line-height:1.5}
+tr.alt td{background:var(--band)}
+tr.grp td{background:var(--divider);color:var(--divider-ink);font-weight:700;padding:8px 12px}
+tr:last-child td{border-bottom:0}
+.muted{color:var(--muted)}
+small{color:var(--muted);font-size:12px}
+.pill{display:inline-block;min-width:30px;padding:1px 9px;border-radius:99px;font-weight:600;font-size:13.5px}
+.pill.bad{background:var(--bad-bg);color:var(--bad)}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}
+.tag{display:inline-block;margin-left:8px;padding:0 8px;border-radius:99px;background:var(--surface);color:var(--muted);font-weight:500;font-size:12px}
+.empty{padding:36px 16px;text-align:center;color:var(--muted)}
+
+.bars{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 18px}
+.bar-month{padding:12px 0;border-top:1px solid var(--line)}
+.bar-month:first-child{border-top:0}
+.bar-month h3{margin:0 0 8px;font-size:14.5px;font-weight:700}
+.bar-row{display:grid;grid-template-columns:150px 1fr 190px;gap:12px;align-items:center;padding:5px 0}
+.bar-row .lab{font-size:13.5px}
+.track{height:26px;background:var(--bg);border-radius:6px;overflow:hidden}
+.fill{height:100%;border-radius:6px 0 0 6px;min-width:2px}
+.fill.p1{background:var(--early)} .fill.p2{background:var(--mid)}
+.bar-row .val{font-size:13.5px;font-variant-numeric:tabular-nums}
+.bar-row .val b{font-size:15px}
+.bar-row .val small{display:block}
+.up{color:var(--ok)} .down{color:var(--bad)}
+@media (max-width:720px){.bar-row{grid-template-columns:1fr;gap:4px}}
+
+.heat{font-variant-numeric:tabular-nums}
+.cov{display:flex;align-items:center;gap:8px;justify-content:center}
+.cov .track{width:96px;height:10px}
+.cov .fill{border-radius:5px}
+.tag.every{background:#d32f2f;color:#fff;font-weight:600}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--muted);margin:0 0 8px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Central Network — สรุปการอัปโหลดจอ</h1>
+  <p id="meta"></p>
+  <div id="sample" class="sample" hidden>ข้อมูลตัวอย่างสำหรับดูหน้าตา (ถอดจากภาพหน้าจอบางส่วน) ตัวจริงจะดึงจาก Google Sheet ทุกครั้งที่รัน build_dashboard.py</div>
+</header>
+<nav class="tabs" aria-label="หน้าของ dashboard"><div class="tabs-in" role="tablist">
+  <button class="tab" role="tab" data-tab="p1">1. สรุปจำนวน</button>
+  <button class="tab" role="tab" data-tab="p2">2. จอที่พบ / จอที่ขาด</button>
+  <button class="tab" role="tab" data-tab="p3">3. เปรียบเทียบตามรอบ</button>
+  <button class="tab" role="tab" data-tab="p4">4. งานส่งช้า</button>
+</div></nav>
+<main id="view"></main>
+
+<script>
+const DEMO_DATA = {"summary": [{"date": "17-8-69", "branch": "Central Pinklao", "total": 983, "expected": null, "found": 19, "missing": 0, "nophoto": 0, "ts": "2026-09-28 12:32:17"}, {"date": "20-8-69", "branch": "Central Mahachai", "total": 793, "expected": 11, "found": 11, "missing": 0, "nophoto": 0, "ts": "2026-09-28 12:32:25"}, {"date": "24-8-69", "branch": "Central Rama 3", "total": 1043, "expected": 21, "found": 20, "missing": 1, "nophoto": 0, "ts": "2026-09-28 12:32:33"}, {"date": "27-8-69", "branch": "Central Bangna", "total": 25, "expected": null, "found": 2, "missing": 0, "nophoto": 0, "ts": "2026-09-28 12:32:40"}, {"date": "27-8-69", "branch": "Central Rama 3", "total": 2, "expected": 21, "found": 0, "missing": 21, "nophoto": 0, "ts": "2026-09-28 12:32:49"}, {"date": "28-8-69", "branch": "Central Westgate", "total": 1519, "expected": 27, "found": 26, "missing": 1, "nophoto": 0, "ts": "2026-09-28 12:32:57"}, {"date": "28-8-69", "branch": "Central World", "total": 1866, "expected": 34, "found": 33, "missing": 1, "nophoto": 0, "ts": "2026-09-28 12:33:06"}, {"date": "29-8-69", "branch": "Central Ladprao", "total": 937, "expected": 18, "found": 18, "missing": 0, "nophoto": 0, "ts": "2026-09-28 12:33:13"}, {"date": "31-8-69", "branch": "Central Bangna", "total": 1169, "expected": null, "found": 23, "missing": 0, "nophoto": 0, "ts": "2026-09-28 12:33:20"}, {"date": "11-09-69", "branch": "Central World", "total": 96, "expected": 34, "found": 3, "missing": 31, "nophoto": 0, "ts": "2026-09-28 12:34:13"}, {"date": "14-09-69", "branch": "Central East Ville", "total": 991, "expected": 27, "found": 26, "missing": 1, "nophoto": 0, "ts": "2026-09-28 12:34:29"}, {"date": "14-09-69", "branch": "Central Westgate", "total": 997, "expected": 27, "found": 24, "missing": 3, "nophoto": 0, "ts": "2026-09-28 12:34:36"}, {"date": "14-09-69", "branch": "Central World", "total": 1378, "expected": 34, "found": 32, "missing": 2, "nophoto": 0, "ts": "2026-09-28 12:34:52"}, {"date": "15-09-69", "branch": "Central Bangna", "total": 799, "expected": null, "found": 23, "missing": 0, "nophoto": 0, "ts": "2026-09-28 12:35:00"}, {"date": "16-9-69", "branch": "Central Bangna", "total": 179, "expected": null, "found": 4, "missing": 0, "nophoto": 0, "ts": "2026-09-28 12:35:09"}, {"date": "16-9-69", "branch": "Central Mahachai", "total": 86, "expected": 11, "found": 0, "missing": 11, "nophoto": 0, "ts": "2026-09-28 12:35:18"}, {"date": "16-9-69", "branch": "Central World", "total": 218, "expected": 34, "found": 3, "missing": 31, "nophoto": 0, "ts": "2026-09-28 12:35:25"}, {"date": "18-09-69", "branch": "Central Rama 9", "total": 192, "expected": 18, "found": 3, "missing": 15, "nophoto": 0, "ts": "2026-09-28 12:36:13"}, {"date": "21-9-69", "branch": "Central World", "total": 1207, "expected": 34, "found": 18, "missing": 16, "nophoto": 0, "ts": "2026-09-28 12:36:20"}, {"date": "23-09-69", "branch": "Central Chiangrai", "total": 1393, "expected": null, "found": 1393, "missing": 0, "nophoto": 0, "ts": "2026-09-28 12:36:39"}, {"date": "24-09-69", "branch": "Central Rama 3", "total": 1471, "expected": 21, "found": 16, "missing": 5, "nophoto": 0, "ts": "2026-09-28 12:36:53"}], "detail": [{"date": "28-8-69", "branch": "Central Westgate", "found": 26, "found_list": "ชั้น 1: M1-10, M1-2, M1-3, M1-4, M1-5, M1-6, M1-7, M1-8, M1-9\nชั้น 2: M1-11, M1-12, M1-13, M1-14, M1-15, M1-16, M1-17\nชั้น 3: M1-18, M1-19, M1-20, M1-21, M1-22, M1-23, M1-24, M1-25, M1-26, M1-27", "missing": 1, "missing_list": "ชั้น 1: M1-1", "nophoto": 0, "nophoto_list": ""}, {"date": "29-8-69", "branch": "Central Ladprao", "found": 18, "found_list": "ชั้น 1: M1-3, M1-4, M1-5, M1-6, M1-7, M4-1\nชั้น 2: M1-10, M1-11, M1-12, M1-13, M1-8, M1-9\nชั้น 3: M1-14, M1-15, M1-16\nชั้น 4: M1-17\nชั้น G: M1-1, M1-2", "missing": 0, "missing_list": "", "nophoto": 0, "nophoto_list": ""}, {"date": "31-8-69", "branch": "Central Bangna", "found": 1169, "found_list": "(ไม่มีรายชื่อจอมาตรฐานเทียบ — แสดงจำนวนไฟล์รวมแทน)", "missing": null, "missing_list": "", "nophoto": 0, "nophoto_list": ""}, {"date": "14-09-69", "branch": "Central East Ville", "found": 26, "found_list": "ชั้น 1: M1-1, M1-10, M1-2, M1-3, M1-4, M1-5, M1-6, M1-7, M1-8, M1-9\nชั้น 2: M1-11, M1-12, M1-13, M1-14, M1-15, M1-16, M1-17, M1-18, M1-19, M1-20, M1-21\nชั้น 3: M1-22, M1-24, M1-25, M1-26, M1-27", "missing": 1, "missing_list": "ชั้น 3: M1-23", "nophoto": 0, "nophoto_list": ""}, {"date": "16-9-69", "branch": "Central World", "found": 3, "found_list": "ชั้น 1: M1-1, M1-2\nชั้น 2: M4-2", "missing": 31, "missing_list": "ชั้น 1: D1P-15, D1P-16, D1P-17, M1-3, M4-1, VDO-WALL\nชั้น 2: M1-4, M1-5, M1-6, M1-7, M1-8\nชั้น 3: M1-10, M1-11, M1-12, M1-13, M1-9, M4-4\nชั้น 4: M1-14, M1-15, M1-16, M4-3\nชั้น 5: M1-17, M1-18, M1-19, M1-20\nชั้น 6: M1-21, M1-22, M1-23\nชั้น 7: M1-24, M1-25, M1-26", "nophoto": 0, "nophoto_list": ""}, {"date": "18-09-69", "branch": "Central Rama 9", "found": 3, "found_list": "ชั้น 1: M1-4\nชั้น 7: M1-17\nชั้น G: M4-1", "missing": 15, "missing_list": "ชั้น 1: M1-6\nชั้น B1: M1-1\nชั้น 2: M1-7, M1-8, M1-9\nชั้น 3: M1-10, M1-11\nชั้น 4: M1-12\nชั้น 5: M1-13, M1-14\nชั้น 6: M1-15, M1-16\nชั้น G: M1-2, M1-3, M1-5", "nophoto": 0, "nophoto_list": ""}, {"date": "21-9-69", "branch": "Central World", "found": 18, "found_list": "ชั้น 1: D1P-15, D1P-16, D1P-17, M1-1, M1-2, M1-3, M4-1, VDO-WALL\nชั้น 2: M1-4, M1-5, M1-6, M1-7, M4-2\nชั้น 3: M1-10, M1-11, M1-12, M1-13, M1-9", "missing": 16, "missing_list": "ชั้น 2: M1-8\nชั้น 3: M4-4\nชั้น 4: M1-14, M1-15, M1-16, M4-3\nชั้น 5: M1-17, M1-18, M1-19, M1-20\nชั้น 6: M1-21, M1-22, M1-23\nชั้น 7: M1-24, M1-25, M1-26", "nophoto": 0, "nophoto_list": ""}, {"date": "23-09-69", "branch": "Central Chiangrai", "found": 1393, "found_list": "(ไม่มีรายชื่อจอมาตรฐานเทียบ — แสดงจำนวนไฟล์รวมแทน)", "missing": null, "missing_list": "", "nophoto": 0, "nophoto_list": ""}, {"date": "24-09-69", "branch": "Central Rama 3", "found": 16, "found_list": "ชั้น 1: M1-15, M1-3, M4-2\nชั้น 2: M1-5, M1-6\nชั้น 3: M1-17, M1-7, M1-8\nชั้น 4: M1-10, M1-16, M1-9\nชั้น 5: M1-12, M1-18\nชั้น G: M1-1, M1-19, M1-2", "missing": 5, "missing_list": "ชั้น 2: M1-4\nชั้น 5: M1-11\nชั้น 6: M1-13, M1-14, M4-1", "nophoto": 0, "nophoto_list": ""}], "period": [{"month": "สิงหาคม 2569", "period": "รอบกลางเดือน (16-31)", "branch": "Central Pinklao", "expected": null, "found": 983, "found_list": "", "missing": null, "missing_list": "", "nophoto": null, "nophoto_list": "", "updated": "2026-09-28 12:40:00"}, {"month": "สิงหาคม 2569", "period": "รอบกลางเดือน (16-31)", "branch": "Central Mahachai", "expected": 11, "found": 11, "found_list": "", "missing": 0, "missing_list": "", "nophoto": 0, "nophoto_list": "", "updated": "2026-09-28 12:40:00"}, {"month": "สิงหาคม 2569", "period": "รอบกลางเดือน (16-31)", "branch": "Central Rama 3", "expected": 21, "found": 20, "found_list": "", "missing": 1, "missing_list": "ชั้น G: M1-2", "nophoto": 0, "nophoto_list": "", "updated": "2026-09-28 12:40:00"}, {"month": "สิงหาคม 2569", "period": "รอบกลางเดือน (16-31)", "branch": "Central Bangna", "expected": null, "found": 1169, "found_list": "", "missing": null, "missing_list": "", "nophoto": null, "nophoto_list": "", "updated": "2026-09-28 12:40:00"}, {"month": "สิงหาคม 2569", "period": "รอบกลางเดือน (16-31)", "branch": "Central Westgate", "expected": 27, "found": 26, "found_list": "", "missing": 1, "missing_list": "ชั้น 1: M1-1", "nophoto": 0, "nophoto_list": "", "updated": "2026-09-28 12:40:00"}, {"month": "สิงหาคม 2569", "period": "รอบกลางเดือน (16-31)", "branch": "Central World", "expected": 34, "found": 33, "found_list": "", "missing": 1, "missing_list": "ชั้น 3: M4-4", "nophoto": 0, "nophoto_list": "", "updated": "2026-09-28 12:40:00"}, {"month": "สิงหาคม 2569", "period": "รอบกลางเดือน (16-31)", "branch": "Central Ladprao", "expected": 18, "found": 18, "found_list": "", "missing": 0, "missing_list": "", "nophoto": 0, "nophoto_list": "", "updated": "2026-09-28 12:40:00"}, {"month": "กันยายน 2569", "period": "รอบต้นเดือน (1-15)", "branch": "Central East Ville", "expected": 27, "found": 26, "found_list": "", "missing": 1, "missing_list": "ชั้น 3: M1-23", "nophoto": 0, "nophoto_list": "", "updated": "2026-09-28 12:40:00"}, {"month": "กันยายน 2569", "period": "รอบต้นเดือน (1-15)", "branch": "Central Westgate", "expected": 27, "found": 24, "found_list": "", "missing": 3, "missing_list": "ชั้น 1: M1-1, M1-6, M1-9", "nophoto": 0, "nophoto_list": "", "updated": "2026-09-28 12:40:00"}, {"month": "กันยายน 2569", "period": "รอบต้นเดือน (1-15)", "branch": "Central World", "expected": 34, "found": 32, "found_list": "", "missing": 2, "missing_list": "ชั้น 1: VDO-WALL\nชั้น 3: M4-4", "nophoto": 0, "nophoto_list": "", "updated": "2026-09-28 12:40:00"}, {"month": "กันยายน 2569", "period": "รอบต้นเดือน (1-15)", "branch": "Central Bangna", "expected": null, "found": 799, "found_list": "", "missing": null, "missing_list": "", "nophoto": null, "nophoto_list": "", "updated": "2026-09-28 12:40:00"}, {"month": "กันยายน 2569", "period": "รอบกลางเดือน (16-30)", "branch": "Central Bangna", "expected": null, "found": 179, "found_list": "", "missing": null, "missing_list": "", "nophoto": null, "nophoto_list": "", "updated": "2026-09-28 12:40:00"}, {"month": "กันยายน 2569", "period": "รอบกลางเดือน (16-30)", "branch": "Central Mahachai", "expected": 11, "found": 0, "found_list": "", "missing": 11, "missing_list": "ชั้น 1: M1-2, M1-3, M1-8, M1-9, M4-1\nชั้น 2: M1-10, M1-4, M1-5, M1-7\nชั้น 3: M1-1, M1-6", "nophoto": 0, "nophoto_list": "", "updated": "2026-09-28 12:40:00"}, {"month": "กันยายน 2569", "period": "รอบกลางเดือน (16-30)", "branch": "Central Rama 9", "expected": 18, "found": 3, "found_list": "", "missing": 15, "missing_list": "ชั้น 1: M1-6\nชั้น B1: M1-1\nชั้น 2: M1-7, M1-8, M1-9\nชั้น 3: M1-10, M1-11\nชั้น 4: M1-12\nชั้น 5: M1-13, M1-14\nชั้น 6: M1-15, M1-16\nชั้น G: M1-2, M1-3, M1-5", "nophoto": 0, "nophoto_list": "", "updated": "2026-09-28 12:40:00"}, {"month": "กันยายน 2569", "period": "รอบกลางเดือน (16-30)", "branch": "Central World", "expected": 34, "found": 18, "found_list": "", "missing": 16, "missing_list": "ชั้น 2: M1-8\nชั้น 3: M4-4\nชั้น 4: M1-14, M1-15, M1-16, M4-3\nชั้น 5: M1-17, M1-18, M1-19, M1-20\nชั้น 6: M1-21, M1-22, M1-23\nชั้น 7: M1-24, M1-25, M1-26", "nophoto": 0, "nophoto_list": "", "updated": "2026-09-28 12:40:00"}, {"month": "กันยายน 2569", "period": "รอบกลางเดือน (16-30)", "branch": "Central Chiangrai", "expected": null, "found": 1393, "found_list": "", "missing": null, "missing_list": "", "nophoto": null, "nophoto_list": "", "updated": "2026-09-28 12:40:00"}, {"month": "กันยายน 2569", "period": "รอบกลางเดือน (16-30)", "branch": "Central Rama 3", "expected": 21, "found": 16, "found_list": "", "missing": 5, "missing_list": "ชั้น 2: M1-4\nชั้น 5: M1-11\nชั้น 6: M1-13, M1-14, M4-1", "nophoto": 0, "nophoto_list": "", "updated": "2026-09-28 12:40:00"}], "meta": {"generated": "2026-09-28 12:40", "sample": true}};
+
+/* ===== ตั้งค่า: ใส่ ID ของ Google Sheet (ต้อง Share = ทุกคนที่มีลิงก์ดูได้) ===== */
+const CFG={SHEET_ID:"1jnGZAIEDxN_MyqZvNnf3p50QyRttHj7YfVVSvbrdxFI",TABS:{summary:"Summary",detail:"ชีต1",period:"สรุปตามรอบแต่ละเดือน"}};
+const clean=s=>String(s==null?'':s).replace(/\s+/g,' ').trim();
+const nz=v=>{v=String(v==null?'':v).replace(/,/g,'').trim();return v===''||isNaN(+v)?null:+v;};
+function parseCSV(t){
+  const out=[];let r=[],f='',q=false;
+  for(let i=0;i<t.length;i++){const c=t[i];
+    if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c=='"')q=true;
+    else if(c==','){r.push(f);f=''}
+    else if(c=='\n'){r.push(f);out.push(r);r=[];f=''}
+    else if(c!='\r')f+=c;
+  }
+  if(f!==''||r.length){r.push(f);out.push(r)}
+  return out;
+}
+function mapTab(table,spec){
+  let hi=table.findIndex(r=>r.some(c=>clean(c)==='สาขา'));
+  if(hi<0) return [];
+  const head=table[hi].map(clean);
+  return table.slice(hi+1).map(r=>{
+    const o={};
+    for(const k in spec){const h=spec[k][0],i=head.indexOf(h),v=i<0?'':r[i];o[k]=spec[k][1]==='n'?nz(v):String(v==null?'':v).trim();}
+    return o;
+  }).filter(o=>o.branch);
+}
+const SPEC={
+ summary:{date:['วันที่'],branch:['สาขา'],total:['จำนวนไฟล์รูปทั้งหมด','n'],video:['จำนวนวิดิโอ','n'],expected:['จำนวนจอห้าง','n'],found:['จำนวนจอที่พบไฟล์','n'],missing:['จำนวนจอที่ขาด','n'],nophoto:['จำนวนจอที่ไม่มีรูป','n'],unidentified:['จำนวนจอที่ไม่ระบุ','n'],ts:['เวลาบันทึก']},
+ detail:{date:['วันที่'],branch:['สาขา'],found:['จำนวนจอที่พบไฟล์','n'],found_list:['รายชื่อจอที่พบไฟล์'],missing:['จำนวนจอที่ขาด','n'],missing_list:['รายชื่อจอที่ขาด'],nophoto:['จำนวนจอที่ไม่มีรูป','n'],nophoto_list:['รายชื่อจอไม่มีรูป'],unidentified:['จำนวนจอที่ไม่ระบุ','n'],unidentified_list:['รายชื่อจอที่ไม่ระบุ'],video:['จำนวนวิดิโอ','n'],video_list:['รายชื่อวิดิโอที่พบไฟล์']},
+ period:{month:['เดือน'],period:['รอบ'],branch:['สาขา'],expected:['จำนวนจอห้าง','n'],found:['จำนวนจอที่พบไฟล์','n'],found_list:['รายชื่อจอที่พบไฟล์'],missing:['จำนวนจอที่ขาด','n'],missing_list:['รายชื่อจอที่ขาด'],nophoto:['จำนวนจอที่ไม่มีรูป','n'],nophoto_list:['รายชื่อจอไม่มีรูป'],unidentified:['จำนวนจอที่ไม่ระบุ','n'],unidentified_list:['รายชื่อจอที่ไม่ระบุ'],video:['จำนวนวิดิโอ','n'],video_list:['รายชื่อวิดิโอที่พบไฟล์'],updated:['อัปเดตล่าสุด']}
+};
+async function fetchTab(name){
+  const url='https://docs.google.com/spreadsheets/d/'+CFG.SHEET_ID+'/gviz/tq?tqx=out:csv&headers=1&sheet='+encodeURIComponent(name);
+  const res=await fetch(url); if(!res.ok) throw new Error('HTTP '+res.status);
+  return parseCSV(await res.text());
+}
+async function loadSheet(){
+  const [s,d,p]=await Promise.all([CFG.TABS.summary,CFG.TABS.detail,CFG.TABS.period].map(fetchTab));
+  const m=[s,d,p].map(t=>mapTab(t,{branch:['สาขา']}).length);
+  if(!m[0]&&!m[1]&&!m[2]) throw new Error('อ่านได้ 0 แถว (Summary '+s.length+' / ชีต1 '+d.length+' / สรุปตามรอบ '+p.length+' บรรทัดดิบ) — เช็คชื่อแท็บและหัวตาราง "สาขา"');
+  const n=new Date(),z=x=>String(x).padStart(2,'0');
+  return {summary:mapTab(s,SPEC.summary),detail:mapTab(d,SPEC.detail),period:mapTab(p,SPEC.period),
+    meta:{generated:n.getFullYear()+'-'+z(n.getMonth()+1)+'-'+z(n.getDate())+' '+z(n.getHours())+':'+z(n.getMinutes()),sample:false}};
+}
+
+function start(DATA){
+"use strict";
+const THAI_MONTHS=['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>(n==null||n==='')?'–':Number(n).toLocaleString('th-TH');
+const generated=new Date(String((DATA.meta&&DATA.meta.generated)||'').replace(' ','T'));
+const now=isNaN(generated)?new Date():generated;
+
+function periodInfo(be,mo,per,lastDay){
+  return {
+    key:be+'-'+String(mo).padStart(2,'0')+'-'+per, month:THAI_MONTHS[mo]+' '+be,
+    label: per===1?'รอบต้นเดือน (1-15)':'รอบกลางเดือน (16-'+lastDay+')',
+    per:per, sortKey:be*1000+mo*10+per,
+    end:new Date(be-543,mo-1,per===1?15:lastDay,23,59,59)
+  };
+}
+function periodOfDate(s){
+  const m=/^(\d{1,2})-(\d{1,2})-(\d{2})$/.exec(String(s).trim()); if(!m) return null;
+  const d=+m[1],mo=+m[2],be=2500+(+m[3]); if(mo<1||mo>12) return null;
+  const last=new Date(be-543,mo,0).getDate();
+  const p=periodInfo(be,mo,d<=15?1:2,last); p.dayKey=be*10000+mo*100+d; return p;
+}
+function periodOfLabels(month,period){
+  const parts=String(month).trim().split(/\s+/); const mo=THAI_MONTHS.indexOf(parts[0]); const be=+parts[1];
+  if(mo<1||!be) return null;
+  const per=/ต้นเดือน/.test(period)?1:2; const mm=/16-(\d+)/.exec(period);
+  return periodInfo(be,mo,per,mm?+mm[1]:new Date(be-543,mo,0).getDate());
+}
+const inProgress=p=>p.end>=now;
+const groupTitle=p=>'เดือน'+p.month+' — '+p.label;
+
+const S=(DATA.summary||[]).map(r=>Object.assign({},r,{p:periodOfDate(r.date)})).filter(r=>r.p);
+const D=(DATA.detail||[]).map(r=>Object.assign({},r,{p:periodOfDate(r.date)})).filter(r=>r.p);
+const P=(DATA.period||[]).map(r=>Object.assign({},r,{p:periodOfLabels(r.month,r.period)})).filter(r=>r.p);
+
+const periods=(()=>{const m=new Map();[...S,...D,...P].forEach(r=>m.set(r.p.key,r.p));return [...m.values()].sort((a,b)=>a.sortKey-b.sortKey);})();
+const branches=[...new Set([...S,...D,...P].map(r=>r.branch))].sort((a,b)=>a.localeCompare(b));
+
+const st={tab:'p1',periodQ:'',branch:'all',order:'desc',q:'',onlyMissing:false};
+const view=$('#view');
+
+/* ---------- ตัวช่วย ---------- */
+function sortRows(rows){
+  const dir=st.order==='desc'?-1:1;
+  return rows.slice().sort((a,b)=>(a.p.dayKey-b.p.dayKey||String(a.ts||'').localeCompare(String(b.ts||'')))*dir);
+}
+function applyBase(rows){
+  const pq=st.periodQ.trim().toLowerCase();
+  return rows.filter(r=>(!pq||groupTitle(r.p).toLowerCase().includes(pq))&&(st.branch==='all'||r.branch===st.branch));
+}
+function groupedBody(rows,ncols,cellFn){
+  let out='',last=null,alt=0;
+  rows.forEach(r=>{
+    if(r.p.key!==last){
+      out+='<tr class="grp"><td colspan="'+ncols+'">'+esc(groupTitle(r.p))+(inProgress(r.p)?'<span class="tag">กำลังดำเนินการ</span>':'')+'</td></tr>';
+      last=r.p.key; alt=0;
+    }
+    out+='<tr class="'+(alt++%2===0?'alt':'')+'">'+cellFn(r)+'</tr>';
+  });
+  return out;
+}
+function countPill(n,badWhenPositive){
+  if(n==null) return '<span class="muted">–</span>';
+  return '<span class="pill '+(badWhenPositive&&n>0?'bad':(badWhenPositive?'ok':''))+'">'+fmt(n)+'</span>';
+}
+const NO_MASTER='ไม่มีรายชื่อจอมาตรฐานของสาขานี้';
+
+/* ---------- แถบตัวกรอง ---------- */
+function opts(list,cur,allLabel){
+  return '<option value="all"'+(cur==='all'?' selected':'')+'>'+allLabel+'</option>'+
+    list.map(o=>'<option value="'+esc(o.v)+'"'+(cur===o.v?' selected':'')+'>'+esc(o.t)+'</option>').join('');
+}
+function filterBar(){
+  const months=[...new Set(periods.slice().reverse().map(p=>p.month))];
+  const perList='<datalist id="period-list">'+
+    months.map(m=>'<option value="'+esc(m)+'"></option>').join('')+
+    periods.slice().reverse().map(p=>'<option value="'+esc(groupTitle(p))+'"></option>').join('')+'</datalist>';
+  const brOpts=opts(branches.map(b=>({v:b,t:b})),st.branch,'ทุกสาขา');
+  const ordOpts='<option value="desc"'+(st.order==='desc'?' selected':'')+'>ใหม่ไปเก่า</option><option value="asc"'+(st.order==='asc'?' selected':'')+'>เก่าไปใหม่</option>';
+  const selPeriod='<label class="f">รอบ / เดือน<input type="search" class="wide-in" data-f="periodQ" list="period-list" autocomplete="off" placeholder="พิมพ์เดือน เช่น กันยายน" value="'+esc(st.periodQ)+'"></label>'+perList;
+  const selBranch='<label class="f">สาขา<select data-f="branch">'+brOpts+'</select></label>';
+  const selOrder='<label class="f">เรียงตามวันที่<select data-f="order">'+ordOpts+'</select></label>';
+  if(st.tab==='p1') return '<div class="filters">'+selPeriod+selBranch+selOrder+'</div>';
+  if(st.tab==='p2') return '<div class="filters">'+selPeriod+selBranch+selOrder+
+    '<label class="f">ค้นหา<input type="search" data-f="q" placeholder="ชื่อจอ เช่น M1-11" value="'+esc(st.q)+'"></label>'+
+    '<label class="f chk"><input type="checkbox" data-f="onlyMissing"'+(st.onlyMissing?' checked':'')+'>เฉพาะแถวที่มีจอขาด</label></div>';
+  if(st.tab==='p4') return '<div class="filters">'+selBranch+'</div>';
+  return '<div class="filters">'+selBranch+'</div>';
+}
+
+/* ---------- หน้า 1 ---------- */
+function page1(){
+  const rows=sortRows(applyBase(S));
+  if(!rows.length) return '<div class="wrap"><div class="empty">ไม่มีข้อมูลตามตัวกรองนี้</div></div>';
+  const files=rows.reduce((a,r)=>a+(r.total||0),0);
+  const withMaster=rows.filter(r=>r.expected!=null);
+  const complete=withMaster.filter(r=>(r.missing||0)===0).length;
+  const latest=rows.map(r=>r.ts).filter(Boolean).sort().pop()||'–';
+  const strip='<div class="strip">'+
+    '<div><div class="k">ครั้งที่อัปโหลด</div><div class="v">'+fmt(rows.length)+'</div><div class="s">จาก '+new Set(rows.map(r=>r.branch)).size+' สาขา</div></div>'+
+    '<div><div class="k">ไฟล์รูปทั้งหมด</div><div class="v">'+fmt(files)+'</div><div class="s">เฉลี่ย '+fmt(Math.round(files/rows.length))+' ไฟล์ต่อครั้ง</div></div>'+
+    '<div><div class="k">ครบทุกจอ</div><div class="v">'+complete+' / '+withMaster.length+'</div><div class="s">นับเฉพาะสาขาที่มีรายชื่อจอมาตรฐาน</div></div>'+
+    '<div><div class="k">บันทึกล่าสุด</div><div class="v" style="font-size:18px;padding-top:6px">'+esc(latest)+'</div></div>'+
+  '</div>';
+  const head='<tr><th>วันที่</th><th class="l">สาขา</th><th>ไฟล์รูปทั้งหมด</th><th>วิดิโอ</th><th>จำนวนจอห้าง</th><th>จอที่พบไฟล์</th><th>จอที่ขาด</th><th>จอที่ไม่มีรูป</th><th>จอที่ไม่ระบุ</th><th>เวลาบันทึก</th></tr>';
+  const body=groupedBody(rows,10,r=>{
+    const has=r.expected!=null;
+    const dash='<td title="'+NO_MASTER+'"><span class="muted">–</span></td>';
+    return '<td>'+esc(r.date)+'</td><td class="l">'+esc(r.branch)+'</td><td>'+fmt(r.total)+'</td><td>'+fmt(r.video)+'</td><td>'+fmt(r.expected)+'</td>'+
+      (has?'<td>'+fmt(r.found)+'</td><td>'+countPill(r.missing,true)+'</td><td>'+fmt(r.nophoto)+'</td><td>'+countPill(r.unidentified,true)+'</td>':dash+dash+dash+dash)+
+      '<td><small>'+esc(r.ts)+'</small></td>';
+  });
+  return strip+'<div class="wrap"><table><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>'+
+    '<p class="note">จอที่พบ / ขาด / ไม่มีรูป เทียบกับรายชื่อจอมาตรฐาน จึงมีเฉพาะสาขาที่มีรายชื่อนั้น สาขาอื่นแสดง –</p>';
+}
+
+/* ---------- หน้า 2 ---------- */
+function page2(){
+  let rows=applyBase(D);
+  if(st.onlyMissing) rows=rows.filter(r=>(r.missing||0)>0);
+  const q=st.q.trim().toLowerCase();
+  if(q) rows=rows.filter(r=>[r.date,r.branch,r.found_list,r.missing_list,r.nophoto_list].join(' ').toLowerCase().includes(q));
+  rows=sortRows(rows);
+  if(!rows.length) return '<div class="wrap"><div class="empty">ไม่มีข้อมูลตามตัวกรองนี้</div></div>';
+  const head='<tr><th>วันที่</th><th>สาขา</th><th>จำนวนจอที่พบ</th><th class="l">รายชื่อจอที่พบไฟล์</th><th>จำนวนจอที่ขาด</th><th class="l">รายชื่อจอที่ขาด</th><th>จอไม่มีรูป</th><th class="l">รายชื่อจอไม่มีรูป</th><th>จอไม่ระบุ</th><th class="l">รายชื่อจอที่ไม่ระบุ</th><th>วิดิโอ</th><th class="l">รายชื่อวิดิโอที่พบไฟล์</th></tr>';
+  const body=groupedBody(rows,12,r=>{
+    const ph=/^\(/.test(r.found_list||'');
+    const vid='<td>'+fmt(r.video)+'</td><td class="lst">'+esc(r.video_list)+'</td>';
+    return '<td>'+esc(r.date)+'</td><td>'+esc(r.branch)+'</td>'+
+      (ph?'<td>'+fmt(r.found)+' <small>ไฟล์</small></td><td class="lst muted">'+esc(r.found_list)+'</td><td><span class="muted">–</span></td><td class="lst"></td><td><span class="muted">–</span></td><td class="lst"></td><td><span class="muted">–</span></td><td class="lst"></td>'
+         :'<td>'+fmt(r.found)+'</td><td class="lst">'+esc(r.found_list)+'</td><td>'+countPill(r.missing,true)+'</td><td class="lst">'+esc(r.missing_list)+'</td><td>'+fmt(r.nophoto)+'</td><td class="lst">'+esc(r.nophoto_list)+'</td><td>'+countPill(r.unidentified,true)+'</td><td class="lst">'+esc(r.unidentified_list)+'</td>')+vid;
+  });
+  return '<div class="wrap"><table class="wide"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>'+
+    '<p class="note">รายชื่อจอจัดกลุ่มตามชั้น สาขาที่ยังไม่มีรายชื่อจอมาตรฐานแสดงเป็นจำนวนไฟล์รวมแทน</p>';
+}
+
+/* ---------- หน้า 3 ---------- */
+function page3(){
+  const rowsS=S.filter(r=>st.branch==='all'||r.branch===st.branch);
+  const map=new Map();
+  rowsS.forEach(r=>{
+    let g=map.get(r.p.key); if(!g){g={p:r.p,files:0,uploads:0,br:new Set()};map.set(r.p.key,g);}
+    g.files+=r.total||0; g.uploads++; g.br.add(r.branch);
+  });
+  const groups=[...map.values()].sort((a,b)=>a.p.sortKey-b.p.sortKey);
+  if(!groups.length) return '<div class="wrap"><div class="empty">ไม่มีข้อมูลตามตัวกรองนี้</div></div>';
+
+  const done=groups.filter(g=>!inProgress(g.p));
+  const maxG=groups.reduce((a,g)=>g.files>a.files?g:a,groups[0]);
+  const minG=done.length?done.reduce((a,g)=>g.files<a.files?g:a,done[0]):null;
+  const avg=done.length?Math.round(done.reduce((a,g)=>a+g.files,0)/done.length):null;
+  const strip='<div class="strip">'+
+    '<div><div class="k">รอบที่ไฟล์มากที่สุด</div><div class="v">'+fmt(maxG.files)+'</div><div class="s">'+esc(maxG.p.month+' '+maxG.p.label)+'</div></div>'+
+    '<div><div class="k">รอบที่ไฟล์น้อยที่สุด</div><div class="v">'+(minG?fmt(minG.files):'–')+'</div><div class="s">'+(minG?esc(minG.p.month+' '+minG.p.label):'ยังไม่มีรอบที่จบแล้ว')+'</div></div>'+
+    '<div><div class="k">เฉลี่ยต่อรอบ</div><div class="v">'+fmt(avg)+'</div><div class="s">'+(done.length?'จาก '+done.length+' รอบที่จบแล้ว':'ยังไม่มีรอบที่จบแล้ว')+'</div></div>'+
+  '</div>';
+
+  const maxFiles=Math.max.apply(null,groups.map(g=>g.files))||1;
+  const byMonth=new Map();
+  groups.forEach((g,i)=>{const k=g.p.month;if(!byMonth.has(k))byMonth.set(k,[]);byMonth.get(k).push({g:g,i:i});});
+  let bars='';
+  byMonth.forEach((items,month)=>{
+    bars+='<div class="bar-month"><h3>'+esc(month)+'</h3>';
+    items.forEach(it=>{
+      const g=it.g,prev=it.i>0?groups[it.i-1]:null;
+      let delta='';
+      if(prev&&prev.files>0&&!inProgress(g.p)){
+        const d=(g.files-prev.files)/prev.files*100;
+        delta='<small class="'+(d>=0?'up':'down')+'">'+(d>=0?'มากกว่า ':'น้อยกว่า ')+Math.abs(Math.round(d))+'% จากรอบก่อน</small>';
+      }
+      bars+='<div class="bar-row"><div class="lab">'+esc(g.p.label)+(inProgress(g.p)?'<span class="tag">กำลังดำเนินการ</span>':'')+'</div>'+
+        '<div class="track" role="img" aria-label="'+esc(g.p.label)+' '+g.files+' ไฟล์"><div class="fill p'+g.p.per+'" style="width:'+(g.files/maxFiles*100)+'%"></div></div>'+
+        '<div class="val"><b>'+fmt(g.files)+'</b> ไฟล์<small>'+g.uploads+' ครั้ง จาก '+g.br.size+' สาขา</small>'+delta+'</div></div>';
+    });
+    bars+='</div>';
+  });
+
+  /* ตารางสาขา x รอบ */
+  const brSet=[...new Set(rowsS.map(r=>r.branch))].sort((a,b)=>a.localeCompare(b));
+  const cell={}; let maxCell=1;
+  rowsS.forEach(r=>{const k=r.branch+'|'+r.p.key;cell[k]=(cell[k]||0)+(r.total||0);if(cell[k]>maxCell)maxCell=cell[k];});
+  let matrix='<tr><th class="l">สาขา</th>'+groups.map(g=>'<th>'+esc(g.p.month)+'<br><small style="color:inherit;opacity:.85">'+esc(g.p.label)+'</small></th>').join('')+'<th>รวม</th></tr>';
+  brSet.forEach((b,i)=>{
+    let total=0;
+    const tds=groups.map(g=>{
+      const v=cell[b+'|'+g.p.key]; if(v==null) return '<td><span class="muted">–</span></td>';
+      total+=v; return '<td class="heat" style="background:color-mix(in srgb,var(--early) '+Math.round(v/maxCell*38)+'%,transparent)">'+fmt(v)+'</td>';
+    }).join('');
+    matrix+='<tr><td class="l">'+esc(b)+'</td>'+tds+'<td><b>'+fmt(total)+'</b></td></tr>';
+  });
+
+  /* ความครบของจอตามรอบ (จากแท็บสรุปตามรอบแต่ละเดือน) */
+  const pr=P.filter(r=>st.branch==='all'||r.branch===st.branch).sort((a,b)=>a.p.sortKey-b.p.sortKey||a.branch.localeCompare(b.branch));
+  let cov='';
+  if(pr.length){
+    const head='<tr><th class="l">สาขา</th><th>จำนวนจอห้าง</th><th>พบไฟล์</th><th>ขาด</th><th>ความครบ</th><th class="l">รายชื่อจอที่ขาด</th><th>ไม่ระบุ</th><th class="l">รายชื่อจอที่ไม่ระบุ</th><th>วิดิโอ</th></tr>';
+    const body=groupedBody(pr,9,r=>{
+      const vid='<td>'+fmt(r.video)+'</td>';
+      if(r.expected==null) return '<td class="l">'+esc(r.branch)+'</td><td colspan="4" class="muted">'+NO_MASTER+' — รวม '+fmt(r.found)+' ไฟล์</td><td></td><td></td><td class="lst"></td>'+vid;
+      const pct=r.expected?Math.round((r.found||0)/r.expected*100):0;
+      const cls=pct>=90?'p2':(pct>=50?'p1':'');
+      const color=pct>=90?'var(--ok)':(pct>=50?'var(--early)':'var(--bad)');
+      return '<td class="l">'+esc(r.branch)+'</td><td>'+fmt(r.expected)+'</td><td>'+fmt(r.found)+'</td><td>'+countPill(r.missing,true)+'</td>'+
+        '<td><div class="cov"><div class="track"><div class="fill" style="width:'+pct+'%;background:'+color+'"></div></div>'+pct+'%</div></td>'+
+        '<td class="lst">'+esc(r.missing_list)+'</td><td>'+countPill(r.unidentified,true)+'</td><td class="lst">'+esc(r.unidentified_list)+'</td>'+vid;
+    });
+    cov='<h2 class="sec">ความครบของจอในแต่ละรอบ</h2><div class="wrap"><table><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>'+
+      '<p class="note">นับสะสมตลอดรอบ: จอที่มีไฟล์ในการอัปโหลดครั้งใดครั้งหนึ่งของรอบ ถือว่าพบแล้ว</p>';
+  }
+
+  return strip+
+    '<h2 class="sec" style="margin-top:0">ปริมาณไฟล์รูปในแต่ละรอบ</h2>'+
+    '<div class="legend"><span><i style="background:var(--early)"></i>รอบต้นเดือน (1-15)</span><span><i style="background:var(--mid)"></i>รอบกลางเดือน</span></div>'+
+    '<div class="bars">'+bars+'</div>'+
+    '<p class="note">นับไฟล์จากทุกครั้งที่อัปโหลด ถ้าสาขาส่งซ้ำในวันเดียวกัน ตัวเลขอาจสูงกว่าจำนวนงานถ่ายจริง</p>'+
+    '<h2 class="sec">ไฟล์รูปแยกตามสาขาและรอบ</h2><div class="wrap"><table><thead>'+matrix.replace('</tr>','</tr></thead><tbody>').replace(/^<tr>/,'<tr>')+'</tbody></table></div>'+
+    cov;
+}
+
+/* ---------- แสดงผล ---------- */
+function lateTokens(txt){const s=new Set();String(txt||'').split('\n').forEach(l=>{const m=/^(ชั้น\s*[^:]+):\s*(.*)$/.exec(l.trim());if(m)m[2].split(',').forEach(c=>{c=c.trim();if(c)s.add(m[1].trim()+': '+c);});});return s;}
+const EVERY='<span class="tag every">ช้าทุกรอบ</span>';
+function page4(){
+  const rows=P.filter(r=>!inProgress(r.p)&&(st.branch==='all'||r.branch===st.branch))
+              .sort((a,b)=>b.p.sortKey-a.p.sortKey||a.branch.localeCompare(b.branch));
+  const withMaster=rows.filter(r=>r.expected!=null);
+  const late=withMaster.filter(r=>(r.missing||0)>0);
+  if(!withMaster.length) return '<div class="wrap"><div class="empty">ยังไม่มีรอบที่ปิดแล้ว หรือสาขาที่เลือกยังไม่มีรายชื่อจอมาตรฐาน</div></div>';
+
+  const byBranch=new Map();
+  withMaster.forEach(r=>{
+    let b=byBranch.get(r.branch); if(!b){b={total:0,lateRounds:0,lateScreens:0,sets:[]};byBranch.set(r.branch,b);}
+    b.total++; if((r.missing||0)>0){ b.lateRounds++; b.lateScreens+=r.missing; b.sets.push(lateTokens(r.missing_list)); }
+  });
+  const ranked=[...byBranch.entries()].map(([b,v])=>Object.assign({branch:b,every:v.total>=2&&v.lateRounds===v.total},v))
+    .filter(v=>v.lateRounds>0).sort((a,b)=>(b.lateRounds/b.total)-(a.lateRounds/a.total)||b.lateScreens-a.lateScreens);
+
+  const everySet=new Set(ranked.filter(v=>v.every).map(v=>v.branch));
+  const strip='<div class="strip">'+
+    '<div><div class="k">รอบที่ปิดแล้ว (นับได้)</div><div class="v">'+new Set(withMaster.map(r=>r.p.key)).size+'</div></div>'+
+    '<div><div class="k">ครั้งที่ส่งช้า</div><div class="v">'+fmt(late.length)+'</div><div class="s">จาก '+fmt(withMaster.length)+' ครั้งที่นับได้</div></div>'+
+    '<div><div class="k">สาขาที่มีของส่งช้า</div><div class="v">'+ranked.length+'</div><div class="s">จาก '+byBranch.size+' สาขาที่มีรายชื่อจอมาตรฐาน</div></div>'+
+  '</div>';
+
+  let rank='';
+  if(ranked.length){
+    rank='<h2 class="sec" style="margin-top:0">อันดับสาขาที่ส่งช้าบ่อย</h2>'+
+      '<div class="wrap"><table><thead><tr><th class="l">สาขา</th><th>ส่งช้ากี่รอบ</th><th>จากทั้งหมดกี่รอบ</th><th>รวมจอที่ส่งช้าสะสม</th><th class="l">จอที่ช้าซ้ำทุกรอบ</th></tr></thead><tbody>'+
+      ranked.map((v,i)=>'<tr class="'+(i%2?'alt':'')+'"><td class="l">'+esc(v.branch)+(v.every?EVERY:'')+'</td><td><span class="pill bad">'+v.lateRounds+'</span></td><td>'+v.total+'</td><td>'+fmt(v.lateScreens)+'</td><td class="lst">'+esc(v.every?([...v.sets[0]].filter(t=>v.sets.every(x=>x.has(t))).join(', ')||'–'):'–')+'</td></tr>').join('')+
+      '</tbody></table></div>';
+  }
+
+  const head='<tr><th class="l">สาขา</th><th>จำนวนจอที่ส่งช้า</th><th class="l">รายชื่อจอที่ส่งช้า</th></tr>';
+  const body=groupedBody(late,3,r=>'<td class="l">'+esc(r.branch)+(everySet.has(r.branch)?EVERY:'')+'</td><td>'+countPill(r.missing,true)+'</td><td class="lst">'+esc(r.missing_list)+'</td>');
+  const table=late.length
+    ? '<h2 class="sec">รายชื่อจอที่ส่งช้า แยกตามรอบ</h2><div class="wrap"><table class="wide"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>'
+    : '<h2 class="sec">รายชื่อจอที่ส่งช้า แยกตามรอบ</h2><div class="wrap"><div class="empty">ไม่มีจอส่งช้าตามตัวกรองนี้ 🎉</div></div>';
+
+  return strip+rank+table+
+    '<p class="note">นับ "ส่งช้า" จากจอที่ยังค้างอยู่ตอนรอบปิดแล้ว (พ้นวันที่ 15 หรือวันสุดท้ายของเดือน) ถึงแม้ภายหลังจะมีรูปเข้ามาในรอบถัดไปก็ยังนับว่าช้าของรอบเดิมอยู่ดี — เฉพาะสาขาที่มีรายชื่อจอมาตรฐานแล้วเท่านั้นที่นับได้</p>';
+}
+
+const pages={p1:page1,p2:page2,p3:page3,p4:page4};
+function renderResults(){ $('#res').innerHTML=pages[st.tab](); }
+function renderTab(){
+  document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===st.tab)));
+  view.innerHTML=filterBar()+'<div id="res"></div>';
+  renderResults();
+}
+function setTab(t){ if(!pages[t]) t='p1'; st.tab=t; renderTab(); }
+
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{
+  setTab(b.dataset.tab);
+  try{ history.replaceState(null,'','#'+b.dataset.tab); }catch(e){}
+}));
+view.addEventListener('input',e=>{
+  const t=e.target; if(!t.dataset||!t.dataset.f) return;
+  st[t.dataset.f]=t.type==='checkbox'?t.checked:t.value; renderResults();
+});
+
+$('#meta').textContent='ข้อมูลจาก Google Sheet — สร้างเมื่อ '+((DATA.meta&&DATA.meta.generated)||'–');
+if(DATA.meta&&DATA.meta.sample) $('#sample').hidden=false;
+setTab((location.hash||'').replace('#','')||'p1');
+}
+(async function(){
+  const el=document.getElementById('sample');let data=null;
+  if(CFG.SHEET_ID){
+    try{data=await loadSheet();}
+    catch(e){el.textContent='โหลดจาก Google Sheet ไม่ได้ ('+e.message+') — เช็คว่า Share เป็น "ทุกคนที่มีลิงก์ดูได้" และชื่อแท็บตรงกับ CFG ตอนนี้แสดงข้อมูลตัวอย่างแทน';el.hidden=false;}
+  }else{el.textContent='ยังไม่ได้ใส่ SHEET_ID ในส่วน CFG ของไฟล์นี้ — ตอนนี้แสดงข้อมูลตัวอย่างเพื่อดูหน้าตา';el.hidden=false;}
+  start(data||DEMO_DATA);
+})();
+</script>
+</body>
+</html>
